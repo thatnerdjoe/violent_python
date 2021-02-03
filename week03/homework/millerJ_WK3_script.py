@@ -1,5 +1,12 @@
 from __future__ import print_function
+import time
+import sys
+import os
 from binascii import hexlify
+
+SCRIPT_AUTHOR = 'Joseph Miller'
+SCRIPT_NAME = 'Assignment 4 - File Processing'
+SCRIPT_DATE = '2021-02-03'
 
 '''
 Week Two Assignment 4 - File Processing Object
@@ -34,10 +41,6 @@ Complete the script below to do the following:
    A) Screenshot of the results in WingIDE
    B) Your Script
 '''
-
-import os
-import sys
-import time
 
 
 class FileProcessor:
@@ -106,6 +109,8 @@ def separator():
 
 fileNames = []
 processedFiles = []
+
+print('\n' + SCRIPT_AUTHOR + '\n' + SCRIPT_NAME + '\n' + SCRIPT_DATE, end='\n\n')
 
 separator()
 directory = input('Please, enter a directory: ')

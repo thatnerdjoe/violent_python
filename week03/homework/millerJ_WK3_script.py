@@ -1,4 +1,5 @@
 from __future__ import print_function
+
 import time
 import sys
 import os
@@ -41,7 +42,6 @@ Complete the script below to do the following:
    A) Screenshot of the results in WingIDE
    B) Your Script
 '''
-
 
 class FileProcessor:
     '''
@@ -109,6 +109,7 @@ def separator():
 
 fileNames = []
 processedFiles = []
+
 
 print('\n' + SCRIPT_AUTHOR + '\n' + SCRIPT_NAME + '\n' + SCRIPT_DATE, end='\n\n')
 

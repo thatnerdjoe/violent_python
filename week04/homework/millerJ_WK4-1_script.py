@@ -43,11 +43,11 @@ PROMPT:
 '''
 
 
-def separator(leng):
+def separator(l):
     '''
     Line break made from '=' characters
     '''
-    for x in range(leng):
+    for x in range(l):
         print('=', end='')
     print()
 
@@ -75,10 +75,12 @@ class ProcessedPIL():
         self._isImage = False
         # if the file is valid, try to process image metadata
         if self._isValid:
+            # get the filesize as string in form '### B'
             self.fileSize = str(os.path.getsize(self.absPath)
-                                ) + ' B'  # get the filesize as string in form '### B'
+                                ) + ' B'
+            # get the file extension
             self.fileExt = os.path.splitext(
-                self.absPath)[1]  # get the file ext
+                self.absPath)[1]
 
             try:  # attempt opening image with PIL
                 with Image.open(self.absPath) as img:
@@ -87,7 +89,6 @@ class ProcessedPIL():
                     self._SetImageDetails(img)
             # file is not a recognizable image
             except:
-                self._isImage = False
                 self._SetImageDetails(None)
         # if file is invalid sym-link, populate metadata accordingly
         else:
@@ -97,23 +98,14 @@ class ProcessedPIL():
 
     def GenerateListRow(self):
         '''
-        Outputs the image metadata of a file: "Extension", "Image Format",
-        "Width", "Height", and "Mode"
+        Returns a list containing image metadata of a file: "Extension", 
+        "Image Format", "Width", "Height", and "Mode"
         '''
-        # fileName referred to a recognized image file
-        if self._isImage:
-            return [self._isImage, self.absPath, self.fileSize, self.fileExt,
-                    self.imgFormat, self.imgWidth, self.imgHeight, self.imgMode]
-        # fileName referred to an invalid symbolic link
-        else:
-            # path refers to directory
-            if os.path.isdir(self.absPath):
-                return [self._isImage, self.absPath, self.fileSize, "Dir",
-                        self.imgFormat, self.imgWidth, self.imgHeight, self.imgMode]
-            # path refers to file not recognized as an image
-            else:
-                return [self._isImage, self.absPath, self.fileSize, self.fileExt,
-                        self.imgFormat, self.imgWidth, self.imgHeight, self.imgMode]
+        # check is file is a directory, set file extension to reflect this
+        tempExt = 'Dir' if os.path.isdir(self.absPath) else self.fileExt
+
+        return [self._isImage, self.absPath, self.fileSize, tempExt,
+                self.imgFormat, self.imgWidth, self.imgHeight, self.imgMode]
 
     def _SetImageDetails(self, img):
         '''
@@ -131,7 +123,6 @@ class ProcessedPIL():
 
 
 # Initialize and declare variables and objects
-
 # Output table
 table = PrettyTable(
     ['Image?', 'File', 'Size', 'Ext', 'Fmt', 'Width', 'Height', 'Mode'])
@@ -166,6 +157,7 @@ try:
         table.add_row(eachFile.GenerateListRow())
 
     printTable(table)
+    print('NOTICE: Images without proper read-permissions will not have metadata')
 
 except (NotADirectoryError, FileNotFoundError) as e:
     print("No such directory.")

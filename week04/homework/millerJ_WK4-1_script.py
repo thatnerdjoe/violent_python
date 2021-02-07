@@ -6,7 +6,7 @@ import time
 
 SCRIPT_AUTHOR = 'Joseph Miller'
 SCRIPT_NAME = 'Assignment 5 - Image Searching'
-SCRIPT_DATE = '2021-02-03'
+SCRIPT_DATE = '2021-02-10'
 
 '''
 PROMPT:
@@ -62,7 +62,7 @@ def printTable(t):
     print(t.get_string())
 
 
-class ProcessedPIL():
+class ProcessedImg():
 
     def __init__(self, fPath, fName):
         self.fileName = fName
@@ -110,7 +110,7 @@ class ProcessedPIL():
     def _SetImageDetails(self, img):
         '''
         Setter method for populating image metadata: "Image Format",
-        "Width", "Height", and "Mode"
+        "Width", "Height", and "Mode", if possible.
         '''
         self.imgFormat = img.format if img else 'N/A'
         self.imgWidth = img.width if img else 'N/A'
@@ -151,7 +151,7 @@ try:
 
     for eachFile in fileNames:
         path = os.path.abspath(directory)
-        processedFiles.append(ProcessedPIL(fPath=path, fName=eachFile))
+        processedFiles.append(ProcessedIMG(fPath=path, fName=eachFile))
 
     for eachFile in processedFiles:
         table.add_row(eachFile.GenerateListRow())

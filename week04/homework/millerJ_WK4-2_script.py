@@ -77,59 +77,81 @@ def verifyAndProcessJPG(fPath, fName):
 ###
 
 class ExifKeyList():
+    '''
+    Class for parsing the PIL.ExifTags dictionaries 
+    '''
 
     def __init__(self):
-        ###
+        ###################
         # EXIF Key-Values
-        ###
-        # creat lists of the TAGS dict's keys and values
+        ###################
+        # create lists of the TAGS dict's keys and values
         self.exifKeys = list(TAGS.keys())
         self.exifValues = list(TAGS.values())
 
         # create dict to store Key-Value pairs of desired ExifTags.TAGS keys
+        # 'GPSInfo' is found within TAGS, and will be passed to `gpsKeyList`
         self.exifKeyList = {'DateTimeOriginal': None,
                             'Make': None,
                             'Model': None,
                             'GPSInfo': None}
-
-        # The list of keys and values should be aligned
-        # and should therefore have an identical index
+        '''
+        The list of keys and values should be aligned and should 
+        therefore have an identical index. By finding the index of a
+        Value in TAGS, the corresponding Key can be found
+        '''
         for each in self.exifKeyList:
             # key becomes index of specified tag in gpsKeyList
             index = self.exifValues.index(each)
             # Add the matching key to the gpsKeyList
             self.exifKeyList.update({each: self.exifKeys[index]})
-        ###
+
+        ##################
         # GPS Key-Values
-        ###
-        #
+        ##################
+        # create list of GPSTAGS dict keys and values
         self.gpsKeys = list(GPSTAGS.keys())
         self.gpsValues = list(GPSTAGS.values())
 
         # create dict to store Key-Value pairs of desired ExifTags.GPSTAGS keys
         self.gpsKeyList = {'GPSLatitude': None,
+                           'GPSLatitudeRef': None,
                            'GPSLongitude': None,
+                           'GPSLongitudeRef': None,
                            }
-
-        # The list of keys and values should be aligned
-        # and should therefore have an identical index
+        '''
+        The list of keys and values should be aligned and should 
+        therefore have an identical index. By finding the index of a
+        Value in GPSTAGS, the corresponding Key can be found
+        '''
         for each in self.gpsKeyList:
-            # key becomes index of specified tag in gpsKeyList
+            # becomes index of specified tag in gpsKeyList
             index = self.gpsValues.index(each)
             # Add the matching key to the gpsKeyList
             self.gpsKeyList.update({each: self.gpsKeys[index]})
 
-        # 'GPSInfo is not in GPSTAGS, add after populating
+        # 'GPSInfo' is not in GPSTAGS, called from `exifKeyList`
         self.gpsKeyList.update({'GPSInfo': self.GetExifKeys('GPSInfo')})
 
-    def GetExifKeys(self, key):
-        return self.exifKeyList.get(key)
+    def GetExifKeys(self, value):
+        '''
+        Returns the Exif TAGS key cooresponding to the specified value  
+        '''
+        return self.exifKeyList.get(value)
 
-    def GetGpsKeys(self, key):
-        return self.gpsKeyList.get(key)
+    def GetGpsKeys(self, value):
+        '''
+        Returns the Exif GPSTAGS key cooresponding to the specified value 
+        '''
+        return self.gpsKeyList.get(value)
 
 
 class ProcessedJPG():
+    '''
+    Class for processing JPG files with PIL.Image and PIL.ExifTags. Holds
+    various metadata fields, such as "Timestamp", and "Camera Make", along
+    with the methods to extract these fields from Exif data.  
+    '''
 
     def __init__(self, absPath, fileExt):
         self.absPath = absPath
@@ -146,61 +168,100 @@ class ProcessedJPG():
             IMG = Image.open(absPath)
             self._isValid = True
             exif = IMG._getexif()
+            # If valid EXIF, extract data
             if exif:
-                self.SetImageExif(exif)
-                self.SetImageGPS(exif)
+                self.ExtractImageExif(exif)
+                self.ExtractImageGPS(exif)
+            # Otherwise, metadata set to 'N/A'
             else:
-                self.SetImageExif(None)
-        # file is not a valid JPEG image
+                self.ExtractImageExif(None)
+        # file is not a valid JPEG image, set metadata to 'N/A'
         except:
-            self.SetImageExif(None)
+            self.ExtractImageExif(None)
 
-    def ConvertCoords(self, lat, lon):
+    def ConvertCoords(self, lat, latRef, lon, lonRef):
+        '''
+        Converts GPS coordinates in form of Tuple (deg, min, sec) into 
+        degrees
+        '''
+        degrees = lat[0] if lat[0] > 0 else 0
+        minutes = lat[1] if lat[1] > 0 else 0
+        seconds = lat[2] if lat[2] > 0 else 0
+        latDecimal = float((degrees + (minutes/60) + (seconds)/(60*60)))
+        if latRef == 'S':
+            latDecimal = latDecimal*-1.0
+
+        degrees = lon[0] if lat[0] > 0 else 0
+        minutes = lon[1] if lat[1] > 0 else 0
+        seconds = lon[2] if lat[2] > 0 else 0
+        lonDecimal = float((degrees + (minutes/60) + (seconds)/(60*60)))
+        if lonRef == 'W':
+            lonDecimal = lonDecimal*-1.0
+
+        return [latDecimal, lonDecimal]
 
     def GenerateListRow(self):
         '''
         Returns a list containing image metadata of a file
         '''
-        return [self.absPath, self.imgTimeStamp, self.imgCameraModel,
-                self.imgCameraMake, self.imgGPS['latitude'], self.imgGPS['longitude']]
+        if None in self.imgGPS.values():
+            lat = 'N/A'
+            lon = 'N/A'
+        else:
+            lat = format(self.imgGPS['latitude'], '.03f')
+            lon = format(self.imgGPS['longitude'], '.03f')
 
-    def SetImageExif(self, exif):
+        fileName = os.path.basename(self.absPath)
+
+        return [fileName, self.imgTimeStamp, self.imgCameraModel,
+                self.imgCameraMake, lat, lon]
+
+    def ExtractImageExif(self, exif):
         '''
         Getter method for populating image metadata: "Image Timestamp",
         "Camera Make", and "Camera Model", if possible.
         '''
-        timestampKey = keyList.GetExifKeys('DateTimeOriginal')
-        makeKey = keyList.GetExifKeys('Make')
-        modelKey = keyList.GetExifKeys('Model')
+        timestampKey = KeyList.GetExifKeys('DateTimeOriginal')
+        makeKey = KeyList.GetExifKeys('Make')
+        modelKey = KeyList.GetExifKeys('Model')
 
         self.imgTimeStamp = exif.get(timestampKey) if exif else 'N/A'
         self.imgCameraMake = exif.get(makeKey) if exif else 'N/A'
         self.imgCameraModel = exif.get(modelKey) if exif else 'N/A'
 
-    def SetImageGPS(self, exif):
+    def ExtractImageGPS(self, exif):
         '''
         Getter method for populating image metadata: "GPS Lat." and "GPS Long.", if possible.
         '''
-        gpsIndex = keyList.GetGpsKeys('GPSInfo')
-        latIndex = keyList.GetGpsKeys('GPSLatitude')
-        longIndex = keyList.GetGpsKeys('GPSLongitude')
+        gpsIndex = KeyList.GetGpsKeys('GPSInfo')
+        # Get Latitude and LatitudeRef GPSTAGS keys
+        latIndex = KeyList.GetGpsKeys('GPSLatitude')
+        latRefIndex = KeyList.GetGpsKeys('GPSLatitudeRef')
+        # Get Longitude and LongitudeRef GPSTAGS keys
+        lonIndex = KeyList.GetGpsKeys('GPSLongitude')
+        lonRefIndex = KeyList.GetGpsKeys('GPSLongitudeRef')
 
-        gpsInfo = exif.get(gpsIndex)
-
-        if gpsInfo:
+        try:
+            gpsInfo = exif.get(gpsIndex)
+            vals = self.ConvertCoords(gpsInfo[latIndex],
+                                      gpsInfo[latRefIndex],
+                                      gpsInfo[lonIndex],
+                                      gpsInfo[lonRefIndex])
+        except:
+            vals = None
 
         self.imgGPS.update(
-            {'latitude': gpsInfo[latIndex] if exif else 'N/A'})
+            {'latitude': vals[0] if vals else None})
         self.imgGPS.update(
-            {'longitude': gpsInfo[longIndex] if exif else 'N/A'})
-
+            {'longitude': vals[1] if vals else None})
 
 ###
 # Script begin!
 ###
 
+
 # Initialize and declare variables and objects
-keyList = ExifKeyList()
+KeyList = ExifKeyList()
 
 # Output table
 table = PrettyTable(
@@ -208,9 +269,6 @@ table = PrettyTable(
 
 # list of files in user-specified var `directory`
 fileNames = []
-
-# list of objects referring to file metadata in user-specified var `directory`
-processedImages = []
 
 # Prompt for user
 prompt = 'Please, enter a directory:'
@@ -226,25 +284,29 @@ separator(promptLen)
 directory = input(prompt + ' ')
 separator(promptLen)
 
+# Attempt to open the directory specified by the user
 try:
     fileNames = os.listdir(directory)
+    # Print the specified directory and omit from table to save space
+    print('Processing JPEG files in:\n   ' + os.path.abspath(directory))
+    separator(promptLen)
 
     for eachFile in fileNames:
         path = os.path.abspath(directory)
         IMG = verifyAndProcessJPG(path, eachFile)
         if IMG:
-            print(IMG.GenerateListRow())
-        else:
-            continue
+            table.add_row(IMG.GenerateListRow())
 
-    # for each in processedImages:
-    #     print(each)
-    # # for eachFile in processedFiles:
-    # #     table.add_row(eachFile.GenerateListRow())
+    count = 0
+    for each in table:
+        count += 1
 
-    # for each in processedImages:
-    #     print(each)
-    # print('NOTICE: Images without proper read-permissions will not have metadata')
+    if count > 0:
+        printTable(table)
+        print('NOTICE: Images without proper read-permissions will not have metadata')
+    else:
+        print("NOTICE: No JPEG-encoded images in directory.")
 
+# Print error and close end program
 except (NotADirectoryError, FileNotFoundError) as e:
-    print("No such directory.")
+    print(e)

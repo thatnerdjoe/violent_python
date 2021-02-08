@@ -28,7 +28,7 @@ PROMPT:
 ###
 
 SCRIPT_AUTHOR = 'Joseph Miller'
-SCRIPT_NAME = 'Assignment 4 - EXIF Data & Processing'
+SCRIPT_NAME = 'Assignment 6 - EXIF Data & Processing'
 SCRIPT_DATE = '2021-02-10'
 
 

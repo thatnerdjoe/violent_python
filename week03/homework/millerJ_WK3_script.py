@@ -43,6 +43,21 @@ Complete the script below to do the following:
    B) Your Script
 '''
 
+# Function definitions:
+
+
+def separator():
+    '''
+    Line break made from '=' characters
+    '''
+    for x in range(60):
+        print('=', end='')
+    print()
+
+
+# Class definitions:
+
+
 class FileProcessor:
     '''
     Contains methods and attributes related to file metadata.
@@ -97,18 +112,11 @@ class FileProcessor:
         else:
             print("NOTICE: symbolic link may be invalid", end='\n\n')
 
-
-def separator():
-    '''
-    Line break made from '=' characters
-    '''
-    for x in range(60):
-        print('=', end='')
-    print()
+# Script begin
 
 
-fileNames = []
-processedFiles = []
+fileNames = []  # list of files in dir
+processedFiles = []  # list of FileProcess objects created from fileNames[]
 
 
 print('\n' + SCRIPT_AUTHOR + '\n' + SCRIPT_NAME + '\n' + SCRIPT_DATE, end='\n\n')

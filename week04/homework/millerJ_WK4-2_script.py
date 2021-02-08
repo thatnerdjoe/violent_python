@@ -305,7 +305,7 @@ try:
         printTable(table)
         print('NOTICE: Images without proper read-permissions will not have metadata')
     else:
-        print("NOTICE: No JPEG-encoded images in directory.")
+        print("NOTICE: No JPEG-encoded images in directory.", end='\n\n')
 
 # Print error and close end program
 except (NotADirectoryError, FileNotFoundError) as e:

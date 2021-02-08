@@ -158,7 +158,7 @@ try:
             table.add_row(IMG.GenerateListRow())
 
     printTable(table)
-    print('NOTICE: Images without proper read-permissions will not have metadata')
+    print('NOTICE: Images without proper read-permissions will not have metadata', end='\n\n')
 
 except (NotADirectoryError, FileNotFoundError) as e:
     print(e)

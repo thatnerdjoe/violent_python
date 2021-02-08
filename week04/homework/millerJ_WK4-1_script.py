@@ -98,13 +98,15 @@ class ProcessedImg():
 
     def GenerateListRow(self):
         '''
-        Returns a list containing image metadata of a file: "Extension", 
+        Returns a list containing image metadata of a file: "Extension",
         "Image Format", "Width", "Height", and "Mode"
         '''
         # check is file is a directory, set file extension to reflect this
-        tempExt = 'Dir' if os.path.isdir(self.absPath) else self.fileExt
+        fileExt = 'Dir' if os.path.isdir(self.absPath) else self.fileExt
+        # Print only the file name and extension
+        fileName = os.path.basename(self.absPath)
 
-        return [self._isImage, self.absPath, self.fileSize, tempExt,
+        return [self._isImage, fileName, self.fileSize, fileExt,
                 self.imgFormat, self.imgWidth, self.imgHeight, self.imgMode]
 
     def _SetImageDetails(self, img):
@@ -130,9 +132,6 @@ table = PrettyTable(
 # list of files in `directory`
 fileNames = []
 
-# list of objects with file metadata in `directory`
-processedFiles = []
-
 # Prompt for user
 prompt = 'Please, enter a directory:'
 promptLen = len(prompt)
@@ -148,16 +147,18 @@ separator(promptLen)
 
 try:
     fileNames = os.listdir(directory)
+    # Print the specified directory and omit from table to save space
+    print('Processing JPEG files in:\n   ' + os.path.abspath(directory))
+    separator(promptLen)
 
     for eachFile in fileNames:
         path = os.path.abspath(directory)
-        processedFiles.append(ProcessedIMG(fPath=path, fName=eachFile))
-
-    for eachFile in processedFiles:
-        table.add_row(eachFile.GenerateListRow())
+        IMG = ProcessedImg(fPath=path, fName=eachFile)
+        if IMG:
+            table.add_row(IMG.GenerateListRow())
 
     printTable(table)
     print('NOTICE: Images without proper read-permissions will not have metadata')
 
 except (NotADirectoryError, FileNotFoundError) as e:
-    print("No such directory.")
+    print(e)

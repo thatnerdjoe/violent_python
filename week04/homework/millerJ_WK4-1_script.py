@@ -147,13 +147,14 @@ separator(promptLen)
 
 try:
     fileNames = os.listdir(directory)
-    # Print the specified directory and omit from table to save space
+    # Print the specified directory and omit from table to save horizontal space
     print('Processing JPEG files in:\n   ' + os.path.abspath(directory))
     separator(promptLen)
-
+    # iterate through each file in `directory` and process accordingly
     for eachFile in fileNames:
         path = os.path.abspath(directory)
         IMG = ProcessedImg(fPath=path, fName=eachFile)
+        # append each row to table in-place to save memory
         if IMG:
             table.add_row(IMG.GenerateListRow())
 

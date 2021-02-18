@@ -243,7 +243,9 @@ class ProcessedJPG():
 
         try:
             gpsInfo = exif.get(gpsIndex)
-            vals = self.ConvertCoords(gpsInfo[latIndex],
+            # Convert the (DD,MM,SS) into degrees
+            # Returns a list [latitude,longitude].
+            gpsCoords = self.ConvertCoords(gpsInfo[latIndex],
                                       gpsInfo[latRefIndex],
                                       gpsInfo[lonIndex],
                                       gpsInfo[lonRefIndex])
@@ -251,9 +253,9 @@ class ProcessedJPG():
             vals = None
 
         self.imgGPS.update(
-            {'latitude': vals[0] if vals else None})
+            {'latitude': gpsCoords[0] if vals else None})
         self.imgGPS.update(
-            {'longitude': vals[1] if vals else None})
+            {'longitude': gpsCoords[1] if vals else None})
 
 ###
 # Script begin!
@@ -287,13 +289,14 @@ separator(promptLen)
 # Attempt to open the directory specified by the user
 try:
     fileNames = os.listdir(directory)
-    # Print the specified directory and omit from table to save space
+    # Print the specified directory and omit from table to save horizontal space
     print('Processing JPEG files in:\n   ' + os.path.abspath(directory))
     separator(promptLen)
-
+    # iterate through files in directory, process each accordingly
     for eachFile in fileNames:
         path = os.path.abspath(directory)
         IMG = verifyAndProcessJPG(path, eachFile)
+        # append each row to table in-place to save memory
         if IMG:
             table.add_row(IMG.GenerateListRow())
 

@@ -266,10 +266,10 @@ def main():
     # Specify the Main Window Icon
     # Select ico file for Windows
     if os.name == 'nt':
-        root.wm_iconbitmap(bitmap='search.ico')
+        root.iconbitmap(bitmap='search.ico')
     # Select png file, otherwise
     else:
-        root.iconphoto(True, PhotoImage('search.png'))
+        root.iconphoto(PhotoImage('search.xbm'))
 
     # Set the Title for the Main Window
     root.title(TITLE)

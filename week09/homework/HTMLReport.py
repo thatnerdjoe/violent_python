@@ -94,7 +94,7 @@ HTML_SECTION = '''
 </thead>
 <tfoot>
 <tr>
-<td colspan="9">CYBV-473 - Your Name</td>
+<td colspan="9">CYBV-473 - Joseph Miller</td>
 </tr>
 </tfoot>
 <tr>
@@ -164,9 +164,7 @@ HTML_ENTRY = '''
 <td>{fldHr[13]}</td>
 <td>{fldHr[14]}</td>
 <td>{fldHr[15]}</td>
-<td>{fldHr[16]}</td>
-<td>{fldHr[17]}</td>
-<td>{fldHr[18]}</td>
+<td>{fldHr[16]}</td>e
 <td>{fldHr[19]}</td>
 <td>{fldHr[20]}</td>
 <td>{fldHr[21]}</td>
@@ -196,7 +194,7 @@ HTML_PORTS = '''
 </thead>
 <tfoot>
 <tr>
-<td colspan="6">CYBV-473: Your Name</td>
+<td colspan="6">CYBV-473: Joseph Miller</td>
 </tr>
 </tfoot>
 <tr>

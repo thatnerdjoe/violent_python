@@ -326,9 +326,10 @@ class IPObservationDictionary:
             fldSrcIP = '{:14s}'.format(eachKey[0])
             fldDstIP = '{:14s}'.format(eachKey[1])
 
-            fldSrcPort = '{:4s}'.format(eachKey[2])
-            fldDstPort = '{:4s}'.format(eachKey[3])
-            fldType = '{:5s}'.format(eachKey[4])
+            fldTTL = '{:4s}'.format(str(eachKey[2]))
+            fldSrcPort = '{:4s}'.format(eachKey[3])
+            fldDstPort = '{:4s}'.format(eachKey[4])
+            fldType = '{:5s}'.format(eachKey[5])
 
             fldHr = []
 
@@ -707,6 +708,8 @@ class Application(Frame):
                         to match.
                     '''
 
+                    timeToLive = ipPacket.ttl
+
                     ''' Extract the source and destination ip addresses '''
                     srcIP = "".join(map(chr, ipPacket.src))
                     dstIP = "".join(map(chr, ipPacket.dst))
@@ -763,7 +766,7 @@ class Application(Frame):
 
                         # Add a new IP observation and the hour
                         self.ipOB.AddOb(
-                            (srcIP, dstIP, srcPort, dstPort, "TCP"), macData, theHour)
+                            (srcIP, dstIP, timeToLive, srcPort, dstPort, "TCP"), macData, theHour)
 
                         # Post them to PortObject Dictionary
                         if srcPort != "EPH":
@@ -808,7 +811,7 @@ class Application(Frame):
 
                          # Add a new IP observation and the hour
                         self.ipOB.AddOb(
-                            (srcIP, dstIP, srcPort, dstPort, "UDP"), macData, theHour)
+                            (srcIP, dstIP, timeToLive, srcPort, dstPort, "UDP"), macData, theHour)
 
                         # Post them to PortObject Dictionary
                         if srcPort != "EPH":
@@ -837,7 +840,7 @@ class Application(Frame):
                         ''' YOUR CODE GOES HERE '''
 
                         self.ipOB.AddOb(
-                            (srcIP, dstIP, "", "", "ICMP"), macData, theHour)
+                            (srcIP, dstIP, timeToLive, "", "", "ICMP"), macData, theHour)
 
                 elif frameType == "ARP":
                     '''
@@ -864,7 +867,7 @@ class Application(Frame):
 
                     # Add a new IP observation and the hour
                     self.ipOB.AddOb(
-                        (srcIP, dstIP, "", "", "ARP"), macData, theHour)
+                        (srcIP, dstIP, timeToLive, "", "", "ARP"), macData, theHour)
 
                 else:
                     ''' frame type is not supported '''

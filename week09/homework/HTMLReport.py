@@ -102,6 +102,7 @@ HTML_SECTION = '''
 <th>DST IP</th>
 <th>SrcPort</th>
 <th>DstPort</th>
+<th>TTL</th>
 <th>Type</th>
 <th>SrcMAC</th>
 <th>DstMAC</th>
@@ -142,6 +143,7 @@ HTML_ENTRY = '''
 <td>{fldDstIP}</td>
 <td>{fldSrcPort}</td>
 <td>{fldDstPort}</td>
+<td>{fldTTL}</td>
 <td>{fldType}</td>
 <td>{fldSrcMAC}</td>
 <td>{fldDstMAC}</td>

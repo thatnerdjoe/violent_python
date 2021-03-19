@@ -983,7 +983,7 @@ def main():
     # Select png file, otherwise
     else:
         try:
-            root.iconphoto(PhotoImage('search.xbm'))
+            root.iconphoto(True, PhotoImage(file='./search.png'))
         except Exception as e:
             print(e)
 

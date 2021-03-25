@@ -151,26 +151,28 @@ class ImageTransform():
             self.image.save('steg-out.bmp')
             line_break(promptLen)
         except Exception as e:
-            print(e)
+            print(str(e) + '\nQuitting...')
+            exit(1)
 
     def extract_msg(self, steg_img):
         """
         Extract the message from selected image
         """
-        print('Extracting message from image...')
-        line_break(promptLen)
-        print()
 
         codes = []
         idx = 0
 
         try:
+            print(f'Opening image: "{steg_img}"')
             steg = Image.open(steg_img)
             pix_steg = steg.load()
 
             if steg.size != self.image.size:
                 print('ERROR: Files likely not matching.\n Quitting...')
                 exit(1)
+
+            print('Extracting message from image...')
+            line_break(promptLen)
 
             for col in range(self.img_width):
                 for row in range(self.img_height):
@@ -185,15 +187,16 @@ class ImageTransform():
                                      str(pix_grn) + str(pix_blu))
 
             # Print respective lines of text from codebook for found codes
+            print("Message:")
             for each_code in self.codebook:
                 if(each_code.startswith(codes[idx])):
                     idx += 1
-                    print(each_code, end='')
-            print()
+                    print(f'\t{each_code}', end='')
             line_break(promptLen)
 
         except Exception as e:
-            print(e)
+            print(str(e) + '\nQuitting...')
+            exit(1)
 
     def _select_message(self):
         """
@@ -248,13 +251,15 @@ class ImageTransform():
             self.img_width = self.image.width
             self.img_height = self.image.height
         except Exception as e:
-            print(e)
+            print(str(e) + '\nQuitting...')
+            exit(1)
 
         print('Opening codebook: "' + codebook_path + '"')
         try:
             self.codebook = open(codebook_path, "r")
         except Exception as e:
-            print(e)
+            print(str(e) + '\nQuitting...')
+            exit(1)
 
 
 ###
@@ -262,9 +267,12 @@ class ImageTransform():
 ###
 if __name__ == '__main__':
 
-    # Set up input prompt
-    prompt = 'Enter the image path:'
-    promptLen = len(prompt)
+    # Set up input prompts
+    target_image_prompt = 'Target image path: '
+    codebook_prompt = 'Enter the codebook path: '
+    operation_prompt = 'Operation Selection:\n\t[1] - Embed message\n\t[2] - Extract Message\nSelect the operation: '
+    original_image_prompt = 'Original image path: '
+    promptLen = 25
 
     # Print program header
     line_break(promptLen)
@@ -272,20 +280,29 @@ if __name__ == '__main__':
           '\n' + SCRIPT_DATE, end='\n\n')
 
     # Commented out for testing
-    # separator(promptLen)
-    # image_path = input(prompt + ' ')
-    image_path = Const.ORIG_IMG()
-    codebook_path = '../CodeBook.txt'
+    line_break(promptLen)
+
+    # Select embed/extract operation
+    operation = input(operation_prompt)
     line_break(promptLen)
 
     # Create image decoder/encoder object
     IMG = ImageTransform()
-    IMG.setup(image_path, codebook_path)
-
     # Selection for embedding or extracting message from an image
-    if 0:
+    if operation == '1':
+        print("Embed Message to Target:\n")
+        target_image_path = os.path.abspath(input(target_image_prompt))
+        codebook_path = os.path.abspath(input(codebook_prompt))
+        IMG.setup(target_image_path, codebook_path)
         IMG.embed_msg()
+    elif operation == '2':
+        print("Extract Message from Target:\n")
+        target_image_path = os.path.abspath(input(target_image_prompt))
+        original_image_path = os.path.abspath(input(original_image_prompt))
+        codebook_path = os.path.abspath(input(codebook_prompt))
+        IMG.setup(original_image_path, codebook_path)
+        IMG.extract_msg(target_image_path)
     else:
-        IMG.extract_msg('steg-out.bmp')
+        print("ERROR: Invalid Selection.\nQuiting...")
 
     quit_script(IMG)

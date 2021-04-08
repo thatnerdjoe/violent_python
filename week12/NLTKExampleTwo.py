@@ -57,7 +57,7 @@ POSTAGS = {
 
 # Read all contents of the corpus
 stopWords = set(stopwords.words('english')) 
-Corpus    = PlaintextCorpusReader('./CORPUS', '.*')
+Corpus    = PlaintextCorpusReader('./corpus', '.*')
 rawText   = Corpus.raw()
 rawText   = re.sub("[^a-zA-Z' ]", ' ', rawText)   
   
